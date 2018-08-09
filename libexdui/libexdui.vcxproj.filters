@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="libexdui">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="libexdui\object">
+      <UniqueIdentifier>{9a05550e-a11a-4a4c-bf15-68b9ca26e822}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="helper">
+      <UniqueIdentifier>{d073934e-3dd2-4d7b-aa00-056cf5d5a63d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="helper\mempool">
+      <UniqueIdentifier>{35e31ba3-3c84-450a-88ab-6f0be3a13ab1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="helper\handletable">
+      <UniqueIdentifier>{7fdbd8fa-c46d-435a-b2bc-27fa524a2626}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="helper\hashtable">
+      <UniqueIdentifier>{8f7704c4-0bd4-411d-80b8-9e150e121c47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libexdui\drawing">
+      <UniqueIdentifier>{2dfcca25-8016-4b99-844d-4e53799cda6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libexdui\resource">
+      <UniqueIdentifier>{56d92fa2-95e9-4e4b-b631-6a05d65cf399}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libexdui\resource\theme">
+      <UniqueIdentifier>{13c96f9b-e559-4fe9-92d7-1160c9bf3f3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libexdui\resource\i18n">
+      <UniqueIdentifier>{e981f284-592c-4654-bfc6-8d1a62f978f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libexdui\drawing\canvas">
+      <UniqueIdentifier>{3e287b12-1c69-4111-8a63-bdd1d2ecddcc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libexdui\drawing\font">
+      <UniqueIdentifier>{af3e2413-a56b-4c63-90ae-8d53ec7ece06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libexdui\drawing\image">
+      <UniqueIdentifier>{24379f99-9b9c-4547-8677-423543fe2246}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libexdui\drawing\brush">
+      <UniqueIdentifier>{1dd0f100-dbf8-4b6c-b7b8-1730372344a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libexdui\drawing\geometry">
+      <UniqueIdentifier>{a9b2ed18-2900-4df9-a5c8-fca7d54f2e0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libexdui\drawing\matrix">
+      <UniqueIdentifier>{c2951806-a133-4fe9-b3c2-d8b7f60a78eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libexdui\layout">
+      <UniqueIdentifier>{bc2d2c77-6967-496c-ad3b-19e7e8f0c1e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libexdui\layout\script">
+      <UniqueIdentifier>{b78f4cbe-8f3c-4ed5-bee0-57ab163efef5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libexdui\common">
+      <UniqueIdentifier>{4a69c8b5-6df2-49f1-ab70-e16ebb79764b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libexdui\common\label">
+      <UniqueIdentifier>{93f5bb1a-b5bc-4134-8e8a-d6369218ef33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libexdui\common\button">
+      <UniqueIdentifier>{b65ed568-2b71-4838-b508-13a8c426739a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libexdui\common\input">
+      <UniqueIdentifier>{0b8b9389-0eb9-4fa5-a835-4dab7543d07d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libexdui\window">
+      <UniqueIdentifier>{5abab73b-e74b-4036-bbec-ff21849f3f75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libexdui\hook">
+      <UniqueIdentifier>{ce525b8b-614a-4440-a733-617c5efd1931}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="resource.h">
+      <Filter>资源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="libexdui.h">
+      <Filter>libexdui</Filter>
+    </ClInclude>
+    <ClInclude Include="mempool.h">
+      <Filter>helper\mempool</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="libexdui.cpp">
+      <Filter>libexdui</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="mempool.cpp">
+      <Filter>helper\mempool</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="libexdui.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="libexdui.def">
+      <Filter>libexdui</Filter>
+    </None>
+  </ItemGroup>
+</Project>
