@@ -1,23 +1,40 @@
+#include "stdafx.h"
 #include "mempool.h"
 
+DWORD m_page_size;
 
-VOID _mp_create(
+BOOL _mp_create(
 	IN ULONG MaximumNumberOfBlocks,
 	IN ULONG SizeOfBlock,
+	IN DWORD dwFlags, //MPF_
 	OUT PMEMPOOL MemPool)
 {
 	ZeroMemory(MemPool, sizeof(*MemPool));
-	MemPool->最大数量 = MaximumNumberOfBlocks;
-	MemPool->内存块尺寸 = SizeOfBlock;
-	return;
+	MemPool->hHeap = HeapCreate(HEAP_GENERATE_EXCEPTIONS, 0, 0);
+	if (MemPool->hHeap)
+	{
+		InitializeCriticalSection(&MemPool->cs);
+		MemPool->nMaxBlocks = MaximumNumberOfBlocks;
+		MemPool->nSizeOfBlock = SizeOfBlock + sizeof(MEMBLOCK_ENTRY);
+		MemPool->BaseAddr = HeapAlloc(MemPool->hHeap, HEAP_ZERO_MEMORY, MemPool->nSizeOfBlock * MaximumNumberOfBlocks);
+		return TRUE;
+	}
+	return FALSE;
 };
 
-BOOLEAN _mp_destroy(
+BOOL _mp_destroy(
 	IN OUT PMEMPOOL MemPool)
 {
-	BOOL Ret;
-	Ret = VirtualFree(MemPool->CommittedBlocks, NULL, MEM_RELEASE);
-	return Ret;
+	if (MemPool->BaseAddr)
+	{
+		HeapDestroy(MemPool->hHeap);
+		VirtualFree(MemPool->CommittedBlocks, NULL, MEM_RELEASE);
+		DeleteCriticalSection(&MemPool->cs);
+		ZeroMemory(MemPool, sizeof(*MemPool));
+		return TRUE;
+	}
+	
+	return FALSE;
 };
 
 PMEMBLOCK_ENTRY _mp_alloc(
@@ -26,38 +43,48 @@ PMEMBLOCK_ENTRY _mp_alloc(
 {
 	DWORD Status;
 	PVOID BaseAddress;
-	ULONG n;
 	SIZE_T ReserveSize;
 	SIZE_T CommitSize;
 	PMEMBLOCK_ENTRY p, *pp;
 
-	if (MemPool->FreeBlocks == NULL) {
-			if (MemPool->UnCommittedBlocks == NULL) {
-				ReserveSize = MemPool->最大数量 * MemPool->内存块尺寸;
-				BaseAddress = VirtualAlloc(NULL, ReserveSize, MEM_RESERVE, PAGE_READWRITE);
-				if (BaseAddress) {
+	if (MemPool->FreeBlocks == NULL) 
+	{
+		if (MemPool->UnCommittedBlocks == NULL) 
+		{
+			ReserveSize = MemPool->nMaxBlocks * MemPool->nSizeOfBlock;
+			BaseAddress = VirtualAlloc(NULL, ReserveSize, MEM_RESERVE, PAGE_READWRITE);
+			if (BaseAddress) 
+			{
 					MemPool->CommittedBlocks = (PMEMBLOCK_ENTRY)BaseAddress;
 					MemPool->UnCommittedBlocks = (PMEMBLOCK_ENTRY)BaseAddress;
 					MemPool->MaxReservedBlocks = (PMEMBLOCK_ENTRY)((PCHAR)BaseAddress + ReserveSize);
-				}
-				else
-				{
-					Status = ERROR_INVALID_ADDRESS;
-				}
 			}
-			p = MemPool->UnCommittedBlocks;
-			if (p >= MemPool->MaxReservedBlocks) {
+			else
+			{
 					Status = STATUS_NO_MEMORY;
-				}
-				else {
-					CommitSize = MemPool->内存块尺寸;
-					BaseAddress = VirtualAlloc(&p, CommitSize, MEM_COMMIT, PAGE_READWRITE);
-					if (BaseAddress)
-					{
-						MemPool->UnCommittedBlocks = (PMEMBLOCK_ENTRY)((PCH)p + CommitSize);
-					}
-				}
+			}
 		}
+
+		p = MemPool->UnCommittedBlocks;
+		if (p >= MemPool->MaxReservedBlocks)
+		{
+			Status = STATUS_NO_MEMORY;
+		}else 
+		{
+			if (!m_page_size)
+			{
+				SYSTEM_INFO *si;
+				GetSystemInfo(si);
+				m_page_size = si->dwPageSize;
+			}
+			CommitSize = m_page_size; 
+			BaseAddress = VirtualAlloc(&p, CommitSize, MEM_COMMIT, PAGE_READWRITE);
+			if (BaseAddress)
+			{
+				MemPool->UnCommittedBlocks = (PMEMBLOCK_ENTRY)((PCH)p + CommitSize);
+			}
+		}
+	}
 
 	if (!SUCCEEDED(Status))
 	{
@@ -68,33 +95,47 @@ PMEMBLOCK_ENTRY _mp_alloc(
 	while (p < MemPool->UnCommittedBlocks) 
 	{
 		*pp = p;
-		pp = &p->Next;
-		p = (PMEMBLOCK_ENTRY)((PUCHAR)p + MemPool->内存块尺寸);
+		pp = &p->NextFree;
+		p = (PMEMBLOCK_ENTRY)((PUCHAR)p + MemPool->nSizeOfBlock);
 	}
 	// Remove handle table entry from head of free list.
 	p = MemPool->FreeBlocks;
-	MemPool->FreeBlocks = p->Next;
+	MemPool->FreeBlocks = p->NextFree;
 	// Clear free list link field, which also leaves the handle allocated bit
 	// clear.  This allows the caller to mark it is allocated after they are
 	// done filling in their portion.
-	p->Next = NULL;
+	p->NextFree = NULL;
 	// If requested, return the index of this handle table entry
-	*MemBlockIndex = (ULONG)(((PCHAR)p - (PCHAR)MemPool->CommittedBlocks) / MemPool->内存块尺寸);
+	*MemBlockIndex = (ULONG)(((PCHAR)p - (PCHAR)MemPool->CommittedBlocks) / MemPool->nSizeOfBlock);
 	return p;
+
+	/*
+	EnterCriticalSection(&cs);//加锁
+	for (int i = 0; i<10; i++) {
+		n_AddValue++;
+		cout << "n_AddValue in SecondThread is " << n_AddValue << endl;
+
+	}
+	LeaveCriticalSection(&cs);//解锁
+	*/
 }
 
 
 
-BOOLEAN _mp_free(
+BOOL _mp_free(
 	IN PMEMPOOL MemPool,
 	IN PMEMBLOCK_ENTRY MemBlock)
 {
+	RtlZeroMemory(MemBlock, MemPool->nSizeOfBlock);
+	MemBlock->NextFree = MemPool->FreeBlocks;
+	MemPool->FreeBlocks = MemBlock;
+	return TRUE;
 };
 
-BOOLEAN _mp_isvalidindex(
+BOOL _mp_isvalidindex(
 	IN PMEMPOOL MemPool,
 	IN ULONG MemBlockIndex,
 	OUT PMEMBLOCK_ENTRY *MemBlock)
 {
-
+	return TRUE;
 };

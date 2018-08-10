@@ -3,27 +3,33 @@
 
 typedef struct _MEMBLOCK_ENTRY
 {
-	struct _MEMBLOCK_ENTRY *Next;
+	struct _MEMBLOCK_ENTRY *NextFree;
+	DWORD dwFlags;
 	PVOID  Object;
 }MEMBLOCK_ENTRY, *PMEMBLOCK_ENTRY;
 
 typedef struct _MEMPOOL
 {
-	ULONG 最大数量;
-	ULONG 内存块尺寸;
+	HANDLE hHeap;
+	CRITICAL_SECTION cs;
+	ULONG nMaxBlocks;
+	ULONG nSizeOfBlock;
+	DWORD dwFlags;
+	LPVOID BaseAddr;
 	PMEMBLOCK_ENTRY FreeBlocks;
 	PMEMBLOCK_ENTRY CommittedBlocks;
 	PMEMBLOCK_ENTRY UnCommittedBlocks;
 	PMEMBLOCK_ENTRY MaxReservedBlocks;
 }MEMPOOL, *PMEMPOOL;
 
-VOID _mp_create(
+BOOL _mp_create(
 	IN ULONG MaximumNumberOfBlocks,
 	IN ULONG SizeOfBlock,
+	IN DWORD dwFlags,
 	OUT PMEMPOOL MemPool
 	);
 
-BOOLEAN _mp_destroy(
+BOOL _mp_destroy(
 	IN OUT PMEMPOOL MemPool
 );
 
@@ -32,12 +38,12 @@ PMEMBLOCK_ENTRY _mp_alloc(
 	OUT PULONG MemBlockIndex OPTIONAL
 	);
 
-BOOLEAN _mp_free(
+BOOL _mp_free(
 	IN PMEMPOOL MemPool,
 	IN PMEMBLOCK_ENTRY MemBlock
 	);
 
-BOOLEAN _mp_isvalidindex(
+BOOL _mp_isvalidindex(
 	IN PMEMPOOL MemPool,
 	IN ULONG MemBlockIndex,
 	OUT PMEMBLOCK_ENTRY *MemBlock
