@@ -163,6 +163,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="compress.h" />
+    <ClInclude Include="handle.h" />
+    <ClInclude Include="hashtable.h" />
     <ClInclude Include="libexdui.h" />
     <ClInclude Include="mempool.h" />
     <ClInclude Include="resource.h" />
@@ -172,7 +175,6 @@
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="libexdui.cpp" />
-    <ClCompile Include="mempool.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
